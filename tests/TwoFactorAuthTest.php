@@ -3,7 +3,6 @@
 require 'vendor/autoload.php';
 
 use pskuza\Auth\Providers\Qr\IQRCodeProvider;
-use pskuza\Auth\Providers\Rng\IRNGProvider;
 use pskuza\Auth\Providers\Time\ITimeProvider;
 use pskuza\Auth\TwoFactorAuth;
 use PHPUnit\Framework\TestCase;
@@ -36,45 +35,6 @@ class TwoFactorAuthTest extends TestCase
         $tfa = new TwoFactorAuth('Test');
         $this->assertEquals('543160', $tfa->getCode('VMR466AB62ZBOKHE', 1426847216));
         $this->assertEquals('538532', $tfa->getCode('VMR466AB62ZBOKHE', 0));
-    }
-
-    public function testCreateSecretThrowsOnInsecureRNGProvider()
-    {
-        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
-
-        $rng = new TestRNGProvider();
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, $rng);
-        $tfa->createSecret();
-    }
-
-    public function testCreateSecretOverrideSecureDoesNotThrowOnInsecureRNG()
-    {
-        $rng = new TestRNGProvider();
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, $rng);
-        $this->assertEquals('ABCDEFGHIJKLMNOP', $tfa->createSecret(80, false));
-    }
-
-    public function testCreateSecretDoesNotThrowOnSecureRNGProvider()
-    {
-        $rng = new TestRNGProvider(true);
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, $rng);
-        $this->assertEquals('ABCDEFGHIJKLMNOP', $tfa->createSecret());
-    }
-
-    public function testCreateSecretGeneratesDesiredAmountOfEntropy()
-    {
-        $rng = new TestRNGProvider(true);
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, $rng);
-        $this->assertEquals('A', $tfa->createSecret(5));
-        $this->assertEquals('AB', $tfa->createSecret(6));
-        $this->assertEquals('ABCDEFGHIJKLMNOPQRSTUVWXYZ', $tfa->createSecret(128));
-        $this->assertEquals('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567', $tfa->createSecret(160));
-        $this->assertEquals('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567', $tfa->createSecret(320));
-        $this->assertEquals('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ234567A', $tfa->createSecret(321));
     }
 
     public function testEnsureCorrectTimeDoesNotThrowForCorrectTime()
@@ -258,72 +218,6 @@ class TwoFactorAuthTest extends TestCase
         $this->assertEquals('47863826', $tfa->getCode($secret, 20000000000));
     }
 
-    /**
-     * @requires function random_bytes
-     */
-    public function testCSRNGProvidersReturnExpectedNumberOfBytes()
-    {
-        $rng = new \pskuza\Auth\Providers\Rng\CSRNGProvider();
-        foreach ($this->getRngTestLengths() as $l) {
-            $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
-        }
-        $this->assertEquals(true, $rng->isCryptographicallySecure());
-    }
-
-    /**
-     * @requires function hash_algos
-     * @requires function hash
-     */
-    public function testHashRNGProvidersReturnExpectedNumberOfBytes()
-    {
-        $rng = new \pskuza\Auth\Providers\Rng\HashRNGProvider();
-        foreach ($this->getRngTestLengths() as $l) {
-            $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
-        }
-        $this->assertEquals(false, $rng->isCryptographicallySecure());
-    }
-
-    /**
-     * @requires function mcrypt_create_iv
-     */
-    public function testMCryptRNGProvidersReturnExpectedNumberOfBytes()
-    {
-        $rng = new \pskuza\Auth\Providers\Rng\MCryptRNGProvider();
-        foreach ($this->getRngTestLengths() as $l) {
-            $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
-        }
-        $this->assertEquals(true, $rng->isCryptographicallySecure());
-    }
-
-    /**
-     * @requires function openssl_random_pseudo_bytes
-     */
-    public function testStrongOpenSSLRNGProvidersReturnExpectedNumberOfBytes()
-    {
-        $rng = new \pskuza\Auth\Providers\Rng\OpenSSLRNGProvider(true);
-        foreach ($this->getRngTestLengths() as $l) {
-            $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
-        }
-        $this->assertEquals(true, $rng->isCryptographicallySecure());
-    }
-
-    /**
-     * @requires function openssl_random_pseudo_bytes
-     */
-    public function testNonStrongOpenSSLRNGProvidersReturnExpectedNumberOfBytes()
-    {
-        $rng = new \pskuza\Auth\Providers\Rng\OpenSSLRNGProvider(false);
-        foreach ($this->getRngTestLengths() as $l) {
-            $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
-        }
-        $this->assertEquals(false, $rng->isCryptographicallySecure());
-    }
-
-    private function getRngTestLengths()
-    {
-        return [1, 16, 32, 256];
-    }
-
     private function DecodeDataUri($datauri)
     {
         if (preg_match('/data:(?P<mimetype>[\w\.\-\/]+);(?P<encoding>\w+),(?P<data>.*)/', $datauri, $m) === 1) {
@@ -333,31 +227,6 @@ class TwoFactorAuthTest extends TestCase
                 'data'     => base64_decode($m['data']),
             ];
         }
-    }
-}
-
-class TestRNGProvider implements IRNGProvider
-{
-    private $isSecure;
-
-    public function __construct($isSecure = false)
-    {
-        $this->isSecure = $isSecure;
-    }
-
-    public function getRandomBytes($bytecount)
-    {
-        $result = '';
-        for ($i = 0; $i < $bytecount; $i++) {
-            $result .= chr($i);
-        }
-
-        return $result;
-    }
-
-    public function isCryptographicallySecure()
-    {
-        return $this->isSecure;
     }
 }
 

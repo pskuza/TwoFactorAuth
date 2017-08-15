@@ -9,4 +9,4 @@ before_script:
     - curl http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o php-cs-fixer.phar
 script:
     - php php-cs-fixer.phar fix -v --dry-run --diff src
-    - phpunit --coverage-text tests
+    - "./vendor/bin/phpunit"

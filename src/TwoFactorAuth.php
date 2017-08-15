@@ -3,7 +3,6 @@
 namespace pskuza\Auth;
 
 use pskuza\Auth\Providers\Qr\IQRCodeProvider;
-use pskuza\Auth\Providers\Rng\IRNGProvider;
 use pskuza\Auth\Providers\Time\ITimeProvider;
 
 // Based on / inspired by: https://github.com/PHPGangsta/GoogleAuthenticator
@@ -15,7 +14,6 @@ class TwoFactorAuth
     private $digits;
     private $issuer;
     private $qrcodeprovider = null;
-    private $rngprovider = null;
     private $timeprovider = null;
     private static $_base32dict = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=';
     private static $_base32;
@@ -55,11 +53,7 @@ class TwoFactorAuth
     {
         $secret = '';
         $bytes = ceil($bits / 5);   //We use 5 bits of each byte (since we have a 32-character 'alphabet' / BASE32)
-        $rngprovider = $this->getRngprovider();
-        if ($requirecryptosecure && !$rngprovider->isCryptographicallySecure()) {
-            throw new TwoFactorAuthException('RNG provider is not cryptographically secure');
-        }
-        $rnd = $rngprovider->getRandomBytes($bytes);
+        $rnd = random_bytes($bytes);
         for ($i = 0; $i < $bytes; $i++) {
             $secret .= self::$_base32[ord($rnd[$i]) & 31];
         }  //Mask out left 3 bits for 0-31 values
@@ -214,32 +208,6 @@ class TwoFactorAuth
         }
 
         return $this->qrcodeprovider;
-    }
-
-    /**
-     * @throws TwoFactorAuthException
-     *
-     * @return IRNGProvider
-     */
-    public function getRngprovider()
-    {
-        if (null !== $this->rngprovider) {
-            return $this->rngprovider;
-        }
-        if (function_exists('random_bytes')) {
-            return $this->rngprovider = new Providers\Rng\CSRNGProvider();
-        }
-        if (function_exists('mcrypt_create_iv')) {
-            return $this->rngprovider = new Providers\Rng\MCryptRNGProvider();
-        }
-        if (function_exists('openssl_random_pseudo_bytes')) {
-            return $this->rngprovider = new Providers\Rng\OpenSSLRNGProvider();
-        }
-        if (function_exists('hash')) {
-            return $this->rngprovider = new Providers\Rng\HashRNGProvider();
-        }
-
-        throw new TwoFactorAuthException('Unable to find a suited RNGProvider');
     }
 
     /**
