@@ -2,4 +2,6 @@
 
 use pskuza\Auth\TwoFactorAuthException;
 
-class TimeException extends TwoFactorAuthException {}
+class TimeException extends TwoFactorAuthException
+{
+}
