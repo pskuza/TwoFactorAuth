@@ -1,11 +1,12 @@
 language: php
-
+sudo: false
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - hhvm
-
-script: phpunit --coverage-text tests
+    - 7.0
+    - 7.1
+install:
+    - composer install
+before_script:
+    - curl http://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -o php-cs-fixer.phar
+script:
+    - php php-cs-fixer.phar fix -v --dry-run --diff src
+    - phpunit --coverage-text tests
