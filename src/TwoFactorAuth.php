@@ -51,7 +51,7 @@ class TwoFactorAuth
     /**
      * Create a new secret.
      */
-    public function createSecret($bits = 80, $requirecryptosecure = true)
+    public function createSecret(int $bits = 80, $requirecryptosecure = true): string
     {
         $secret = '';
         $bytes = ceil($bits / 5);   //We use 5 bits of each byte (since we have a 32-character 'alphabet' / BASE32)
@@ -69,7 +69,7 @@ class TwoFactorAuth
     /**
      * Calculate the code with given secret and point in time.
      */
-    public function getCode($secret, $time = null)
+    public function getCode(string $secret, int $time = null): string
     {
         $secretkey = $this->base32Decode($secret);
 
@@ -85,7 +85,7 @@ class TwoFactorAuth
     /**
      * Check if the code is correct. This will accept codes starting from ($discrepancy * $period) sec ago to ($discrepancy * period) sec from now.
      */
-    public function verifyCode($secret, $code, $discrepancy = 1, $time = null)
+    public function verifyCode(string $secret, string $code, int $discrepancy = 1, int $time = null): bool
     {
         $result = false;
         $timetamp = $this->getTime($time);
@@ -101,29 +101,15 @@ class TwoFactorAuth
     /**
      * Timing-attack safe comparison of 2 codes (see http://blog.ircmaxell.com/2014/11/its-all-about-time.html).
      */
-    private function codeEquals($safe, $user)
+    private function codeEquals(string $safe, string $user): bool
     {
-        if (function_exists('hash_equals')) {
-            return hash_equals($safe, $user);
-        }
-        // In general, it's not possible to prevent length leaks. So it's OK to leak the length. The important part is that
-        // we don't leak information about the difference of the two strings.
-        if (strlen($safe) === strlen($user)) {
-            $result = 0;
-            for ($i = 0; $i < strlen($safe); $i++) {
-                $result |= (ord($safe[$i]) ^ ord($user[$i]));
-            }
-
-            return $result === 0;
-        }
-
-        return false;
+        return hash_equals($safe, $user);
     }
 
     /**
      * Get data-uri of QRCode.
      */
-    public function getQRCodeImageAsDataUri($label, $secret, $size = 200)
+    public function getQRCodeImageAsDataUri(string $label, string $secret, int $size = 200): string
     {
         if (!is_int($size) || $size <= 0) {
             throw new TwoFactorAuthException('Size must be int > 0');
@@ -166,12 +152,12 @@ class TwoFactorAuth
         }
     }
 
-    private function getTime($time)
+    private function getTime(int $time): int
     {
         return ($time === null) ? $this->getTimeProvider()->getTime() : $time;
     }
 
-    private function getTimeSlice($time = null, $offset = 0)
+    private function getTimeSlice(int $time = null, int $offset = 0): int
     {
         return (int) floor($time / $this->period) + ($offset * $this->period);
     }
@@ -179,7 +165,7 @@ class TwoFactorAuth
     /**
      * Builds a string to be encoded in a QR code.
      */
-    public function getQRText($label, $secret)
+    public function getQRText(string $label, string $secret): string
     {
         return 'otpauth://totp/'.rawurlencode($label)
             .'?secret='.rawurlencode($secret)
