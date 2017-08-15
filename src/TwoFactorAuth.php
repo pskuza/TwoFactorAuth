@@ -18,7 +18,7 @@ class TwoFactorAuth
     private static $_base32lookup = [];
     private static $_supportedalgos = ['sha1', 'sha256', 'sha512', 'md5'];
 
-    public function __construct($issuer = null, $digits = 6, $period = 30, $algorithm = 'sha1', IQRCodeProvider $qrcodeprovider = null)
+    public function __construct(string $issuer = null, int $digits = 6, int $period = 30, string $algorithm = 'sha1', IQRCodeProvider $qrcodeprovider = null)
     {
         $this->issuer = $issuer;
         if (!is_int($digits) || $digits <= 0) {
@@ -45,7 +45,7 @@ class TwoFactorAuth
     /**
      * Create a new secret.
      */
-    public function createSecret(int $bits = 80, $requirecryptosecure = true): string
+    public function createSecret(int $bits = 80): string
     {
         $secret = '';
         $bytes = ceil($bits / 5);   //We use 5 bits of each byte (since we have a 32-character 'alphabet' / BASE32)
