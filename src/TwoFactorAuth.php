@@ -90,7 +90,7 @@ class TwoFactorAuth
         $result = false;
         $timetamp = $this->getTime($time);
 
-        // To keep safe from timing-attachs we iterate *all* possible codes even though we already may have verified a code is correct
+        // To keep safe from timing-attacks we iterate *all* possible codes even though we already may have verified a code is correct
         for ($i = -$discrepancy; $i <= $discrepancy; $i++) {
             $result |= $this->codeEquals($this->getCode($secret, $timetamp + ($i * $this->period)), $code);
         }

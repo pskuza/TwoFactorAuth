@@ -6,6 +6,7 @@ use pskuza\Auth\Providers\Qr\IQRCodeProvider;
 use pskuza\Auth\Providers\Rng\IRNGProvider;
 use pskuza\Auth\Providers\Time\ITimeProvider;
 use pskuza\Auth\TwoFactorAuth;
+use PHPUnit\Framework\TestCase;
 
 class TwoFactorAuthTest extends TestCase
 {
