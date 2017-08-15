@@ -1,25 +1,25 @@
 <?php
-require_once 'lib/TwoFactorAuth.php';
-require_once 'lib/TwoFactorAuthException.php';
+require_once 'src/TwoFactorAuth.php';
+require_once 'src/TwoFactorAuthException.php';
 
-require_once 'lib/Providers/Qr/IQRCodeProvider.php';
-require_once 'lib/Providers/Qr/BaseHTTPQRCodeProvider.php';
-require_once 'lib/Providers/Qr/GoogleQRCodeProvider.php';
-require_once 'lib/Providers/Qr/QRException.php';
+require_once 'src/Providers/Qr/IQRCodeProvider.php';
+require_once 'src/Providers/Qr/BaseHTTPQRCodeProvider.php';
+require_once 'src/Providers/Qr/GoogleQRCodeProvider.php';
+require_once 'src/Providers/Qr/QRException.php';
 
-require_once 'lib/Providers/Rng/IRNGProvider.php';
-require_once 'lib/Providers/Rng/RNGException.php';
-require_once 'lib/Providers/Rng/CSRNGProvider.php';
-require_once 'lib/Providers/Rng/MCryptRNGProvider.php';
-require_once 'lib/Providers/Rng/OpenSSLRNGProvider.php';
-require_once 'lib/Providers/Rng/HashRNGProvider.php';
-require_once 'lib/Providers/Rng/RNGException.php';
+require_once 'src/Providers/Rng/IRNGProvider.php';
+require_once 'src/Providers/Rng/RNGException.php';
+require_once 'src/Providers/Rng/CSRNGProvider.php';
+require_once 'src/Providers/Rng/MCryptRNGProvider.php';
+require_once 'src/Providers/Rng/OpenSSLRNGProvider.php';
+require_once 'src/Providers/Rng/HashRNGProvider.php';
+require_once 'src/Providers/Rng/RNGException.php';
 
-require_once 'lib/Providers/Time/ITimeProvider.php';
-require_once 'lib/Providers/Time/LocalMachineTimeProvider.php';
-require_once 'lib/Providers/Time/HttpTimeProvider.php';
-require_once 'lib/Providers/Time/ConvertUnixTimeDotComTimeProvider.php';
-require_once 'lib/Providers/Time/TimeException.php';
+require_once 'src/Providers/Time/ITimeProvider.php';
+require_once 'src/Providers/Time/LocalMachineTimeProvider.php';
+require_once 'src/Providers/Time/HttpTimeProvider.php';
+require_once 'src/Providers/Time/ConvertUnixTimeDotComTimeProvider.php';
+require_once 'src/Providers/Time/TimeException.php';
 
 use RobThree\Auth\TwoFactorAuth;
 use RobThree\Auth\Providers\Qr\IQRCodeProvider;
@@ -29,26 +29,24 @@ use RobThree\Auth\Providers\Time\ITimeProvider;
 
 class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
+
     public function testConstructorThrowsOnInvalidDigits() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
 
         new TwoFactorAuth('Test', 0);
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testConstructorThrowsOnInvalidPeriod() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
 
         new TwoFactorAuth('Test', 6, 0);
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testConstructorThrowsOnInvalidAlgorithm() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
 
         new TwoFactorAuth('Test', 6, 30, 'xxx');
     }
@@ -60,10 +58,10 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('538532', $tfa->getCode('VMR466AB62ZBOKHE', 0));
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testCreateSecretThrowsOnInsecureRNGProvider() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
+
         $rng = new TestRNGProvider();
 
         $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, $rng);
@@ -104,10 +102,10 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
         $tfa->ensureCorrectTime(array($tpr2));   // 128 - 123 = 5 => within default leniency
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testEnsureCorrectTimeThrowsOnIncorrectTime() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
+
         $tpr1 = new TestTimeProvider(123);
         $tpr2 = new TestTimeProvider(124);
 
@@ -160,28 +158,28 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('otpauth://totp/Test%26Label?secret=VMR466AB62ZBOKHE&issuer=Test%26Issuer&period=30&algorithm=SHA1&digits=6@200', $data['data']);
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testGetQRCodeImageAsDataUriThrowsOnInvalidSize() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
+
         $qr = new TestQrProvider();
 
         $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', $qr);
         $tfa->getQRCodeImageAsDataUri('Test', 'VMR466AB62ZBOKHE', 0);
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testGetCodeThrowsOnInvalidBase32String1() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
+
         $tfa = new TwoFactorAuth('Test');
         $tfa->getCode('FOO1BAR8BAZ9');    //1, 8 & 9 are invalid chars
     }
 
-    /**
-     * @expectedException \RobThree\Auth\TwoFactorAuthException
-     */
     public function testGetCodeThrowsOnInvalidBase32String2() {
+
+        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
+
         $tfa = new TwoFactorAuth('Test');
         $tfa->getCode('mzxw6===');        //Lowercase
     }

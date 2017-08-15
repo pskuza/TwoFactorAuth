@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth;
+namespace pskuza\Auth;
 
 use Exception;
 

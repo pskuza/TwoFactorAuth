@@ -6,10 +6,9 @@
 <body>
     <ol>
         <?php
-        require_once 'loader.php';
-        Loader::register('../lib','RobThree\\Auth');
+        require_once 'vendor/autoloader.php';
 
-        use \RobThree\Auth\TwoFactorAuth;
+        use \pskuza\Auth\TwoFactorAuth;
 
         $tfa = new TwoFactorAuth('MyApp');
 
@@ -27,7 +26,7 @@
     try {
         $tfa->ensureCorrectTime();
         echo 'Your hosts time seems to be correct / within margin';
-    } catch (RobThree\Auth\TwoFactorAuthException $ex) {
+    } catch (pskuza\Auth\TwoFactorAuthException $ex) {
         echo '<b>Warning:</b> Your hosts time seems to be off: ' . $ex->getMessage();
     }
     ?>

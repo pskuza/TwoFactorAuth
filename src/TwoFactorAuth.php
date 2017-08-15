@@ -1,9 +1,9 @@
 <?php
-namespace RobThree\Auth;
+namespace pskuza\Auth;
 
-use RobThree\Auth\Providers\Qr\IQRCodeProvider;
-use RobThree\Auth\Providers\Rng\IRNGProvider;
-use RobThree\Auth\Providers\Time\ITimeProvider;
+use pskuza\Auth\Providers\Qr\IQRCodeProvider;
+use pskuza\Auth\Providers\Rng\IRNGProvider;
+use pskuza\Auth\Providers\Time\ITimeProvider;
 
 // Based on / inspired by: https://github.com/PHPGangsta/GoogleAuthenticator
 // Algorithms, digits, period etc. explained: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
