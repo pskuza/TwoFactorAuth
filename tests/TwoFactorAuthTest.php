@@ -7,7 +7,7 @@ use pskuza\Auth\Providers\Rng\IRNGProvider;
 use pskuza\Auth\Providers\Time\ITimeProvider;
 use pskuza\Auth\TwoFactorAuth;
 
-class TwoFactorAuthTest extends \PHPUnit_Framework_TestCase
+class TwoFactorAuthTest extends TestCase
 {
     public function testConstructorThrowsOnInvalidDigits()
     {
