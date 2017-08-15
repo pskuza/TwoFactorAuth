@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Time;
+namespace pskuza\Auth\Providers\Time;
 
 /**
  * Takes the time from any webserver by doing a HEAD request on the specified URL and extracting the 'Date:' header

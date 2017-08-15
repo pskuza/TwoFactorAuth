@@ -1,5 +1,5 @@
 <?php
 
-use RobThree\Auth\TwoFactorAuthException;
+use pskuza\Auth\TwoFactorAuthException;
 
 class QRException extends TwoFactorAuthException {}

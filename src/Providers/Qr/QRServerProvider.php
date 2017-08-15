@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Qr;
+namespace pskuza\Auth\Providers\Qr;
 
 // http://goqr.me/api/doc/create-qr-code/
 class QRServerProvider extends BaseHTTPQRCodeProvider 

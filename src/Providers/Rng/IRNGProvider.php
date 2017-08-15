@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Rng;
+namespace pskuza\Auth\Providers\Rng;
 
 interface IRNGProvider
 {

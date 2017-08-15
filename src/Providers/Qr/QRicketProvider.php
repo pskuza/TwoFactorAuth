@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Qr;
+namespace pskuza\Auth\Providers\Qr;
 
 // http://qrickit.com/qrickit_apps/qrickit_api.php
 class QRicketProvider extends BaseHTTPQRCodeProvider 

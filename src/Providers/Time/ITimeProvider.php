@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Time;
+namespace pskuza\Auth\Providers\Time;
 
 interface ITimeProvider
 {

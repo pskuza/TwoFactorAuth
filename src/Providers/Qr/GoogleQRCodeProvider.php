@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Qr;
+namespace pskuza\Auth\Providers\Qr;
 
 // https://developers.google.com/chart/infographics/docs/qr_codes
 class GoogleQRCodeProvider extends BaseHTTPQRCodeProvider 

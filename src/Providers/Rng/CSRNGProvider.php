@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Rng;
+namespace pskuza\Auth\Providers\Rng;
 
 class CSRNGProvider implements IRNGProvider
 {

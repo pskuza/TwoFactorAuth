@@ -1,6 +1,6 @@
 <?php
 
-namespace RobThree\Auth\Providers\Qr;
+namespace pskuza\Auth\Providers\Qr;
 
 abstract class BaseHTTPQRCodeProvider implements IQRCodeProvider
 {
