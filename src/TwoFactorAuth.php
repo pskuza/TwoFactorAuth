@@ -3,7 +3,6 @@
 namespace pskuza\Auth;
 
 use pskuza\Auth\Providers\Qr\IQRCodeProvider;
-use pskuza\Auth\Providers\Time\ITimeProvider;
 
 // Based on / inspired by: https://github.com/PHPGangsta/GoogleAuthenticator
 // Algorithms, digits, period etc. explained: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
@@ -14,13 +13,12 @@ class TwoFactorAuth
     private $digits;
     private $issuer;
     private $qrcodeprovider = null;
-    private $timeprovider = null;
     private static $_base32dict = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=';
     private static $_base32;
     private static $_base32lookup = [];
     private static $_supportedalgos = ['sha1', 'sha256', 'sha512', 'md5'];
 
-    public function __construct($issuer = null, $digits = 6, $period = 30, $algorithm = 'sha1', IQRCodeProvider $qrcodeprovider = null, IRNGProvider $rngprovider = null, ITimeProvider $timeprovider = null)
+    public function __construct($issuer = null, $digits = 6, $period = 30, $algorithm = 'sha1', IQRCodeProvider $qrcodeprovider = null)
     {
         $this->issuer = $issuer;
         if (!is_int($digits) || $digits <= 0) {
@@ -39,8 +37,6 @@ class TwoFactorAuth
         }
         $this->algorithm = $algorithm;
         $this->qrcodeprovider = $qrcodeprovider;
-        $this->rngprovider = $rngprovider;
-        $this->timeprovider = $timeprovider;
 
         self::$_base32 = str_split(self::$_base32dict);
         self::$_base32lookup = array_flip(self::$_base32);
@@ -116,39 +112,9 @@ class TwoFactorAuth
             .base64_encode($qrcodeprovider->getQRCodeImage($this->getQRText($label, $secret), $size));
     }
 
-    /**
-     * Compare default timeprovider with specified timeproviders and ensure the time is within the specified number of seconds (leniency).
-     */
-    public function ensureCorrectTime(array $timeproviders = null, $leniency = 5)
-    {
-        if ($timeproviders != null && !is_array($timeproviders)) {
-            throw new TwoFactorAuthException('No timeproviders specified');
-        }
-        if ($timeproviders == null) {
-            $timeproviders = [
-                new Providers\Time\ConvertUnixTimeDotComTimeProvider(),
-                new Providers\Time\HttpTimeProvider(),
-            ];
-        }
-
-        // Get default time provider
-        $timeprovider = $this->getTimeProvider();
-
-        // Iterate specified time providers
-        foreach ($timeproviders as $t) {
-            if (!($t instanceof ITimeProvider)) {
-                throw new TwoFactorAuthException('Object does not implement ITimeProvider');
-            }
-            // Get time from default time provider and compare to specific time provider and throw if time difference is more than specified number of seconds leniency
-            if (abs($timeprovider->getTime() - $t->getTime()) > $leniency) {
-                throw new TwoFactorAuthException(sprintf('Time for timeprovider is off by more than %d seconds when compared to %s', $leniency, get_class($t)));
-            }
-        }
-    }
-
     private function getTime(int $time): int
     {
-        return ($time === null) ? $this->getTimeProvider()->getTime() : $time;
+        return ($time === null) ? time() : $time;
     }
 
     private function getTimeSlice(int $time = null, int $offset = 0): int
@@ -208,20 +174,5 @@ class TwoFactorAuth
         }
 
         return $this->qrcodeprovider;
-    }
-
-    /**
-     * @throws TwoFactorAuthException
-     *
-     * @return ITimeProvider
-     */
-    public function getTimeProvider()
-    {
-        // Set default time provider if none was specified
-        if (null === $this->timeprovider) {
-            return $this->timeprovider = new Providers\Time\LocalMachineTimeProvider();
-        }
-
-        return $this->timeprovider;
     }
 }

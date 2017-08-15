@@ -2,10 +2,9 @@
 
 require 'vendor/autoload.php';
 
-use pskuza\Auth\Providers\Qr\IQRCodeProvider;
-use pskuza\Auth\Providers\Time\ITimeProvider;
-use pskuza\Auth\TwoFactorAuth;
 use PHPUnit\Framework\TestCase;
+use pskuza\Auth\Providers\Qr\IQRCodeProvider;
+use pskuza\Auth\TwoFactorAuth;
 
 class TwoFactorAuthTest extends TestCase
 {
@@ -35,43 +34,6 @@ class TwoFactorAuthTest extends TestCase
         $tfa = new TwoFactorAuth('Test');
         $this->assertEquals('543160', $tfa->getCode('VMR466AB62ZBOKHE', 1426847216));
         $this->assertEquals('538532', $tfa->getCode('VMR466AB62ZBOKHE', 0));
-    }
-
-    public function testEnsureCorrectTimeDoesNotThrowForCorrectTime()
-    {
-        $tpr1 = new TestTimeProvider(123);
-        $tpr2 = new TestTimeProvider(128);
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, null, $tpr1);
-        $tfa->ensureCorrectTime([$tpr2]);   // 128 - 123 = 5 => within default leniency
-    }
-
-    public function testEnsureCorrectTimeThrowsOnIncorrectTime()
-    {
-        $this->expectException('\pskuza\Auth\TwoFactorAuthException');
-
-        $tpr1 = new TestTimeProvider(123);
-        $tpr2 = new TestTimeProvider(124);
-
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1', null, null, $tpr1);
-        $tfa->ensureCorrectTime([$tpr2], 0);    // We force a leniency of 0, 124-123 = 1 so this should throw
-    }
-
-    public function testEnsureDefaultTimeProviderReturnsCorrectTime()
-    {
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1');
-        $tfa->ensureCorrectTime([new TestTimeProvider(time())], 1);    // Use a leniency of 1, should the time change between both time() calls
-    }
-
-    public function testEnsureAllTimeProvidersReturnCorrectTime()
-    {
-        $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1');
-        $tfa->ensureCorrectTime([
-            new pskuza\Auth\Providers\Time\ConvertUnixTimeDotComTimeProvider(),
-            new pskuza\Auth\Providers\Time\HttpTimeProvider(),                        // Uses google.com by default
-            new pskuza\Auth\Providers\Time\HttpTimeProvider('https://github.com'),
-            new pskuza\Auth\Providers\Time\HttpTimeProvider('https://yahoo.com'),
-        ]);
     }
 
     public function testVerifyCodeWorksCorrectly()
@@ -240,20 +202,5 @@ class TestQrProvider implements IQRCodeProvider
     public function getMimeType()
     {
         return 'test/test';
-    }
-}
-
-class TestTimeProvider implements ITimeProvider
-{
-    private $time;
-
-    public function __construct($time)
-    {
-        $this->time = $time;
-    }
-
-    public function getTime()
-    {
-        return $this->time;
     }
 }
