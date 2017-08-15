@@ -1,31 +1,11 @@
 <?php
 
-require_once 'src/TwoFactorAuth.php';
-require_once 'src/TwoFactorAuthException.php';
+require 'vendor/autoload.php';
 
-require_once 'src/Providers/Qr/IQRCodeProvider.php';
-require_once 'src/Providers/Qr/BaseHTTPQRCodeProvider.php';
-require_once 'src/Providers/Qr/GoogleQRCodeProvider.php';
-require_once 'src/Providers/Qr/QRException.php';
-
-require_once 'src/Providers/Rng/IRNGProvider.php';
-require_once 'src/Providers/Rng/RNGException.php';
-require_once 'src/Providers/Rng/CSRNGProvider.php';
-require_once 'src/Providers/Rng/MCryptRNGProvider.php';
-require_once 'src/Providers/Rng/OpenSSLRNGProvider.php';
-require_once 'src/Providers/Rng/HashRNGProvider.php';
-require_once 'src/Providers/Rng/RNGException.php';
-
-require_once 'src/Providers/Time/ITimeProvider.php';
-require_once 'src/Providers/Time/LocalMachineTimeProvider.php';
-require_once 'src/Providers/Time/HttpTimeProvider.php';
-require_once 'src/Providers/Time/ConvertUnixTimeDotComTimeProvider.php';
-require_once 'src/Providers/Time/TimeException.php';
-
-use RobThree\Auth\Providers\Qr\IQRCodeProvider;
-use RobThree\Auth\Providers\Rng\IRNGProvider;
-use RobThree\Auth\Providers\Time\ITimeProvider;
-use RobThree\Auth\TwoFactorAuth;
+use pskuza\Auth\Providers\Qr\IQRCodeProvider;
+use pskuza\Auth\Providers\Rng\IRNGProvider;
+use pskuza\Auth\Providers\Time\ITimeProvider;
+use pskuza\Auth\TwoFactorAuth;
 
 class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
 {
@@ -126,10 +106,10 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
     {
         $tfa = new TwoFactorAuth('Test', 6, 30, 'sha1');
         $tfa->ensureCorrectTime([
-            new RobThree\Auth\Providers\Time\ConvertUnixTimeDotComTimeProvider(),
-            new RobThree\Auth\Providers\Time\HttpTimeProvider(),                        // Uses google.com by default
-            new RobThree\Auth\Providers\Time\HttpTimeProvider('https://github.com'),
-            new RobThree\Auth\Providers\Time\HttpTimeProvider('https://yahoo.com'),
+            new pskuza\Auth\Providers\Time\ConvertUnixTimeDotComTimeProvider(),
+            new pskuza\Auth\Providers\Time\HttpTimeProvider(),                        // Uses google.com by default
+            new pskuza\Auth\Providers\Time\HttpTimeProvider('https://github.com'),
+            new pskuza\Auth\Providers\Time\HttpTimeProvider('https://yahoo.com'),
         ]);
     }
 
@@ -204,7 +184,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
         //                                                           Dave Thomas and Andy Hunt -- "Pragmatic Unit Testing
         $tfa = new TwoFactorAuth('Test');
 
-        $method = new ReflectionMethod('RobThree\Auth\TwoFactorAuth', 'base32Decode');
+        $method = new ReflectionMethod('pskuza\Auth\TwoFactorAuth', 'base32Decode');
         $method->setAccessible(true);
 
         // Test vectors from: https://tools.ietf.org/html/rfc4648#page-12
@@ -225,7 +205,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
         //   "In some circumstances, the use of padding ("=") in base-encoded data is not required or used."
         $tfa = new TwoFactorAuth('Test');
 
-        $method = new ReflectionMethod('RobThree\Auth\TwoFactorAuth', 'base32Decode');
+        $method = new ReflectionMethod('pskuza\Auth\TwoFactorAuth', 'base32Decode');
         $method->setAccessible(true);
 
         // Test vectors from: https://tools.ietf.org/html/rfc4648#page-12
@@ -282,7 +262,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
      */
     public function testCSRNGProvidersReturnExpectedNumberOfBytes()
     {
-        $rng = new \RobThree\Auth\Providers\Rng\CSRNGProvider();
+        $rng = new \pskuza\Auth\Providers\Rng\CSRNGProvider();
         foreach ($this->getRngTestLengths() as $l) {
             $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
         }
@@ -295,7 +275,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
      */
     public function testHashRNGProvidersReturnExpectedNumberOfBytes()
     {
-        $rng = new \RobThree\Auth\Providers\Rng\HashRNGProvider();
+        $rng = new \pskuza\Auth\Providers\Rng\HashRNGProvider();
         foreach ($this->getRngTestLengths() as $l) {
             $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
         }
@@ -307,7 +287,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
      */
     public function testMCryptRNGProvidersReturnExpectedNumberOfBytes()
     {
-        $rng = new \RobThree\Auth\Providers\Rng\MCryptRNGProvider();
+        $rng = new \pskuza\Auth\Providers\Rng\MCryptRNGProvider();
         foreach ($this->getRngTestLengths() as $l) {
             $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
         }
@@ -319,7 +299,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
      */
     public function testStrongOpenSSLRNGProvidersReturnExpectedNumberOfBytes()
     {
-        $rng = new \RobThree\Auth\Providers\Rng\OpenSSLRNGProvider(true);
+        $rng = new \pskuza\Auth\Providers\Rng\OpenSSLRNGProvider(true);
         foreach ($this->getRngTestLengths() as $l) {
             $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
         }
@@ -331,7 +311,7 @@ class TwoFactorAuthTest extends PHPUnit_Framework_TestCase
      */
     public function testNonStrongOpenSSLRNGProvidersReturnExpectedNumberOfBytes()
     {
-        $rng = new \RobThree\Auth\Providers\Rng\OpenSSLRNGProvider(false);
+        $rng = new \pskuza\Auth\Providers\Rng\OpenSSLRNGProvider(false);
         foreach ($this->getRngTestLengths() as $l) {
             $this->assertEquals($l, strlen($rng->getRandomBytes($l)));
         }
